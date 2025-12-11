@@ -1,6 +1,7 @@
 """FastAPI application entry point."""
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from banner import router as banner_router
 from tus import router as tus_router
@@ -27,6 +28,15 @@ from service_test import router as service_test_router
 from db import ensure_service_test_table
 
 app = FastAPI(title="Glowac API", version="1.0.0")
+
+# Allow CORS from all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(banner_router)
 app.include_router(tus_router)
 app.include_router(facts_router)
