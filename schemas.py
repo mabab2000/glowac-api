@@ -3,6 +3,7 @@
 from typing import Optional
 
 from pydantic import BaseModel
+from datetime import datetime
 
 
 class Banner(BaseModel):
@@ -124,3 +125,34 @@ class ServiceTest(BaseModel):
 
 
 __all__.append("ServiceTest")
+
+
+class Message(BaseModel):
+    id: int
+    name: str
+    email: str
+    message: str
+    created_at: datetime
+
+
+__all__.append("Message")
+
+
+class MessageResponse(BaseModel):
+    message: str
+    data: Message
+
+
+__all__.append("MessageResponse")
+
+
+class GeotechRequest(BaseModel):
+    id: int
+    name: str
+    email: str
+    phone: str
+    project_details: str
+    created_at: datetime
+
+
+__all__.append("GeotechRequest")

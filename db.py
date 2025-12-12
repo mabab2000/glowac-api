@@ -365,3 +365,46 @@ def ensure_service_test_table() -> None:
             )
 
 __all__.append("ensure_service_test_table")
+
+
+def ensure_messages_table() -> None:
+    """Create the messages table for contact form submissions if missing."""
+
+    dsn = get_dsn()
+    with psycopg.connect(dsn, autocommit=True) as db_conn:
+        with db_conn.cursor() as cur:
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS messages (
+                    id BIGSERIAL PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    message TEXT NOT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+                """
+            )
+
+__all__.append("ensure_messages_table")
+
+
+def ensure_geotech_table() -> None:
+    """Create the geotech_requests table for geotechnical service requests."""
+
+    dsn = get_dsn()
+    with psycopg.connect(dsn, autocommit=True) as db_conn:
+        with db_conn.cursor() as cur:
+            cur.execute(
+                """
+                CREATE TABLE IF NOT EXISTS geotech_requests (
+                    id BIGSERIAL PRIMARY KEY,
+                    name TEXT NOT NULL,
+                    email TEXT NOT NULL,
+                    phone TEXT NOT NULL,
+                    project_details TEXT NOT NULL,
+                    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+                )
+                """
+            )
+
+__all__.append("ensure_geotech_table")

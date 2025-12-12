@@ -26,6 +26,10 @@ from sub_service import router as sub_service_router
 from db import ensure_sub_service_table
 from service_test import router as service_test_router
 from db import ensure_service_test_table
+from messages import router as messages_router
+from db import ensure_messages_table
+from geotech import router as geotech_router
+from db import ensure_geotech_table
 
 app = FastAPI(title="Glowac API", version="1.0.0")
 
@@ -49,6 +53,8 @@ app.include_router(members_router)
 app.include_router(main_service_router)
 app.include_router(sub_service_router)
 app.include_router(service_test_router)
+app.include_router(messages_router)
+app.include_router(geotech_router)
 
 
 @app.on_event("startup")
@@ -67,6 +73,8 @@ def on_startup() -> None:
     ensure_main_service_table()
     ensure_sub_service_table()
     ensure_service_test_table()
+    ensure_messages_table()
+    ensure_geotech_table()
 
 
 @app.get("/health", tags=["health"])
