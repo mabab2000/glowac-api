@@ -18,11 +18,11 @@ def list_facts() -> list[Fact]:
         with conn.cursor() as cur:
             cur.execute("SELECT id, label, number, status FROM facts ORDER BY id")
             rows = cur.fetchall()
-    return [Fact(id=r[0], label=r[1], number=int(r[2]), status=r[3]) for r in rows]
+    return [Fact(id=r[0], label=r[1], number=str(r[2]) if r[2] is not None else "", status=r[3]) for r in rows]
 
 
 @router.post("", response_model=Fact, status_code=201)
-def create_fact(label: str = Form(...), number: int = Form(...), status: str = Form("Visible")) -> Fact:
+def create_fact(label: str = Form(...), number: str = Form(...), status: str = Form("Visible")) -> Fact:
     with psycopg.connect(get_dsn()) as conn:
         with conn.cursor() as cur:
             cur.execute(
@@ -32,14 +32,14 @@ def create_fact(label: str = Form(...), number: int = Form(...), status: str = F
             row = cur.fetchone()
     if row is None:
         raise HTTPException(status_code=500, detail="Failed to create fact")
-    return Fact(id=row[0], label=row[1], number=int(row[2]), status=row[3])
+    return Fact(id=row[0], label=row[1], number=str(row[2]) if row[2] is not None else "", status=row[3])
 
 
 @router.put("/{fact_id}", response_model=Fact)
 def update_fact(
     fact_id: int,
     label: Optional[str] = Form(None),
-    number: Optional[int] = Form(None),
+    number: Optional[str] = Form(None),
     status: Optional[str] = Form(None),
 ) -> Fact:
     with psycopg.connect(get_dsn()) as conn:
@@ -67,7 +67,7 @@ def update_fact(
             row = cur.fetchone()
     if row is None:
         raise HTTPException(status_code=500, detail="Failed to update fact")
-    return Fact(id=row[0], label=row[1], number=int(row[2]), status=row[3])
+    return Fact(id=row[0], label=row[1], number=str(row[2]) if row[2] is not None else "", status=row[3])
 
 
 @router.delete("/{fact_id}", status_code=204)

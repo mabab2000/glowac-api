@@ -31,7 +31,7 @@ __all__.append("Tus")
 class Fact(BaseModel):
     id: int
     label: str
-    number: int
+    number: str
     status: str
 
 
