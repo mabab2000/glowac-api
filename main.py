@@ -1,3 +1,4 @@
+from fastapi.responses import JSONResponse
 """FastAPI application entry point."""
 
 from fastapi import FastAPI
@@ -26,10 +27,6 @@ from sub_service import router as sub_service_router
 from db import ensure_sub_service_table
 from service_test import router as service_test_router
 from db import ensure_service_test_table
-from messages import router as messages_router
-from db import ensure_messages_table
-from geotech import router as geotech_router
-from db import ensure_geotech_table
 
 app = FastAPI(title="Glowac API", version="1.0.0")
 
@@ -53,28 +50,45 @@ app.include_router(members_router)
 app.include_router(main_service_router)
 app.include_router(sub_service_router)
 app.include_router(service_test_router)
-app.include_router(messages_router)
-app.include_router(geotech_router)
 
 
-@app.on_event("startup")
-def on_startup() -> None:
-    """Initialize database artifacts when the app starts."""
-    ensure_database()
-    ensure_banner_table()
-    ensure_tus_table()
-    ensure_facts_table()
-    ensure_why_table()
-    ensure_background_table()
-    ensure_core_values_table()
-    ensure_gallery_table()
-    ensure_ceo_table()
-    ensure_members_table()
-    ensure_main_service_table()
-    ensure_sub_service_table()
-    ensure_service_test_table()
-    ensure_messages_table()
-    ensure_geotech_table()
+# Utility to test DB connection
+def test_db_connection():
+    from db import get_database_url
+    import psycopg
+    try:
+        url = get_database_url()
+        with psycopg.connect(url) as conn:
+            with conn.cursor() as cur:
+                cur.execute("SELECT 1;")
+        return True, None
+    except Exception as e:
+        return False, str(e)
+
+# Add endpoint to test DB connection
+@app.get("/db-test", tags=["health"])
+def db_test():
+    ok, err = test_db_connection()
+    if ok:
+        return {"db": "ok"}
+    return JSONResponse(status_code=500, content={"db": "fail", "error": err})
+
+# @app.on_event("startup")
+# def on_startup() -> None:
+#     """Initialize database artifacts when the app starts."""
+#     ensure_database()
+#     ensure_banner_table()
+#     ensure_tus_table()
+#     ensure_facts_table()
+#     ensure_why_table()
+#     ensure_background_table()
+#     ensure_core_values_table()
+#     ensure_gallery_table()
+#     ensure_ceo_table()
+#     ensure_members_table()
+#     ensure_main_service_table()
+#     ensure_sub_service_table()
+#     ensure_service_test_table()
 
 
 @app.get("/health", tags=["health"])
@@ -83,14 +97,12 @@ def health() -> dict[str, str]:
 
 
 if __name__ == "__main__":
-    ensure_database()
-    ensure_banner_table()
-    ensure_gallery_table()
-    ensure_ceo_table()
-    ensure_members_table()
-    ensure_main_service_table()
-    ensure_sub_service_table()
-    ensure_service_test_table()
+    # Test DB connection from CLI
+    ok, err = test_db_connection()
+    if ok:
+        print("Database connection: OK")
+    else:
+        print(f"Database connection failed: {err}")
     import uvicorn
 
     uvicorn.run("main:app", host="0.0.0.0", port=8000)
